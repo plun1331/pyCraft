@@ -750,7 +750,7 @@ class LoginReactor(PacketReactor):
             # Receiving a disconnect packet in the login state indicates an
             # abnormal condition. Raise an exception explaining the situation.
             try:
-                msg = json.loads(packet.json_data)['text']
+                msg = json.loads(packet.json_data)
             except (ValueError, TypeError, KeyError):
                 msg = packet.json_data
             match = re.match(r"Outdated (client! Please use|server!"
