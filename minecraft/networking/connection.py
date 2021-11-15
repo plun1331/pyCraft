@@ -753,6 +753,7 @@ class LoginReactor(PacketReactor):
                 msg = json.loads(packet.json_data)
             except (ValueError, TypeError, KeyError):
                 msg = packet.json_data
+            msg = str(msg)
             match = re.match(r"Outdated (client! Please use|server!"
                              r" I'm still on) (?P<ver>\S+)$", msg)
             if match:
