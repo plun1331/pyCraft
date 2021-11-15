@@ -750,7 +750,12 @@ class LoginReactor(PacketReactor):
             # Receiving a disconnect packet in the login state indicates an
             # abnormal condition. Raise an exception explaining the situation.
             try:
-                msg = json.loads(packet.json_data)
+                data = json.loads(packet.json_data)
+                msg = ''
+                msg += data.get('text')
+                if 'extra' in data:
+                    for i in data['extra']:
+                        msg += i.get('text', '')
             except (ValueError, TypeError, KeyError):
                 msg = packet.json_data
             msg = str(msg)
