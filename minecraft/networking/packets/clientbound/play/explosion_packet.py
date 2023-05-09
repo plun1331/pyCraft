@@ -1,5 +1,6 @@
 from minecraft.networking.types import (
     Vector, Float, Byte, Integer, PrefixedArray, multi_attribute_alias, Type,
+    VarInt,
 )
 from minecraft.networking.packets import Packet
 
@@ -7,7 +8,8 @@ from minecraft.networking.packets import Packet
 class ExplosionPacket(Packet):
     @staticmethod
     def get_id(context):
-        return 0x1B if context.protocol_later_eq(741) else \
+        return 0x1C if context.protocol_later_eq(755) else \
+               0x1B if context.protocol_later_eq(741) else \
                0x1C if context.protocol_later_eq(721) else \
                0x1D if context.protocol_later_eq(550) else \
                0x1C if context.protocol_later_eq(471) else \
@@ -33,15 +35,22 @@ class ExplosionPacket(Packet):
             for coord in record:
                 Byte.send(coord, socket)
 
-    definition = [
-        {'x': Float},
-        {'y': Float},
-        {'z': Float},
-        {'radius': Float},
-        {'records': PrefixedArray(Integer, Record)},
-        {'player_motion_x': Float},
-        {'player_motion_y': Float},
-        {'player_motion_z': Float}]
+    @staticmethod
+    def get_definition(context):
+        return [
+            {'x': Float},
+            {'y': Float},
+            {'z': Float},
+            {'radius': Float},
+
+            {'records': PrefixedArray(VarInt, ExplosionPacket.Record)}
+            if context.protocol_later_eq(755) else
+            {'records': PrefixedArray(Integer, ExplosionPacket.Record)},
+
+            {'player_motion_x': Float},
+            {'player_motion_y': Float},
+            {'player_motion_z': Float},
+        ]
 
     # Access the 'x', 'y', 'z' fields as a Vector tuple.
     position = multi_attribute_alias(Vector, 'x', 'y', 'z')

@@ -1,3 +1,4 @@
+from minecraft import PRE
 from minecraft.networking.packets import Packet
 from minecraft.networking.types import (
     VarInt, Byte, Boolean, UnsignedByte, VarIntPrefixedByteArray, String,
@@ -8,7 +9,8 @@ from minecraft.networking.types import (
 class MapPacket(Packet):
     @staticmethod
     def get_id(context):
-        return 0x25 if context.protocol_later_eq(741) else \
+        return 0x27 if context.protocol_later_eq(755) else \
+               0x25 if context.protocol_later_eq(741) else \
                0x26 if context.protocol_later_eq(721) else \
                0x27 if context.protocol_later_eq(550) else \
                0x26 if context.protocol_later_eq(389) else \
@@ -71,15 +73,18 @@ class MapPacket(Packet):
         self.map_id = VarInt.read(file_object)
         self.scale = Byte.read(file_object)
 
-        if self.context.protocol_later_eq(107):
+        if self.context.protocol_in_range(107, PRE | 6):
             self.is_tracking_position = Boolean.read(file_object)
-        else:
+        elif self.context.protocol_earlier(107):
             self.is_tracking_position = True
 
         if self.context.protocol_later_eq(452):
             self.is_locked = Boolean.read(file_object)
         else:
             self.is_locked = False
+
+        if self.context.protocol_later_eq(PRE | 6):
+            self.is_tracking_position = Boolean.read(file_object)
 
         icon_count = VarInt.read(file_object)
         self.icons = []
